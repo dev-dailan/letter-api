@@ -1,0 +1,28 @@
+spring:
+  # Lambda 환경 변수로 주입된다 (infra/terraform/lambda.tf). 값이 없으면 기동에 실패한다.
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    hikari:
+      # Lambda 는 실행 환경 1개가 요청 1건만 처리하므로 커넥션은 적게 둔다.
+      # (db.t4g.micro 의 max_connections 는 100 안팎)
+      maximum-pool-size: ${DB_POOL_SIZE:2}
+      minimum-idle: 0
+      # SnapStart 복원 직후 죽은 커넥션을 빨리 걸러내기 위해 짧게 둔다.
+      validation-timeout: 1000
+      connection-timeout: 5000
+
+logging:
+  level:
+    root: INFO
+
+management:
+  health:
+    # Lambda 의 작업 디렉터리(/var/task)는 읽기 전용이라 여유 공간이 0 으로 잡혀 항상 DOWN 이 된다.
+    diskspace:
+      enabled: false
+  endpoint:
+    health:
+      # 항목별 UP/DOWN 만 노출한다. (상세 정보는 숨김)
+      show-components: always

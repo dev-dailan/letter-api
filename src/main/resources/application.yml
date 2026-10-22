@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: letter-api
+  profiles:
+    default: local
+  config:
+    # ???? ??? .env (KEY=VALUE, git ??) ? ??? ???. ?? ???.
+    import: optional:file:.env[.properties]
+  jpa:
+    open-in-view: false
+    hibernate:
+      # ???? Liquibase ? ????. Hibernate ? ??? ??.
+      ddl-auto: validate
+  jooq:
+    sql-dialect: postgres
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+server:
+  servlet:
+    context-path: /letter
+  port: ${SERVER_PORT:8083}
+  shutdown: graceful
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+letter:
+  delivery:
+    scheduler:
+      # 편지 배달 배치 스케줄러 (LetterDeliveryScheduler). 당분간 중지한다.
+      enabled: false
